@@ -169,7 +169,29 @@ canvas.addEventListener("pointermove",e=>{
   updateSelection();
 });
 
+canvas.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  dragging=true;
+  canvas.setPointerCapture(e.pointerId);
+  start=point(e);
+  end={...start};
+  draw();
+  updateSelection();
+});
+
+canvas.addEventListener("pointermove",e=>{
+  if(!dragging)return;
+  e.preventDefault();
+  end=point(e);
+  draw();
+  updateSelection();
+});
+
 canvas.addEventListener("pointerup",()=>{
+  dragging=false;
+});
+
+canvas.addEventListener("pointercancel",()=>{
   dragging=false;
 });
 
