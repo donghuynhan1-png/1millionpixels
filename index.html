@@ -3,41 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>1 Million Pixels</title>
+<title>150Pixels - Own Your Space</title>
 
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#10131c;color:#fff;font-family:Arial,sans-serif}
 header{text-align:center;padding:35px 15px 20px}
-h1{font-size:clamp(30px,7vw,52px);margin:0;color:#ffd54a}
-header p{color:#c4c8d4}
+h1{font-size:clamp(34px,7vw,56px);margin:0;color:#ffd54a}
+header p{color:#c4c8d4;line-height:1.6}
 main{max-width:1000px;margin:auto;padding:15px}
-.stats{display:flex;justify-content:center;gap:25px;flex-wrap:wrap;margin:20px 0}
+.stats{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin:20px 0}
 .stat{background:#202637;padding:14px 22px;border-radius:12px;text-align:center}
-.stat strong{display:block;font-size:24px;color:#ffd54a;margin-top:5px}
+.stat strong{display:block;font-size:22px;color:#ffd54a;margin-top:7px}
 .board{background:#fff;border:5px solid #30394d;border-radius:8px;overflow:hidden}
 canvas{display:block;width:100%;height:65vh;min-height:300px;touch-action:none;cursor:crosshair}
 .controls{text-align:center;margin:15px 0}
 button{border:0;border-radius:8px;padding:12px 18px;margin:4px;background:#ffd54a;color:#171717;font-weight:bold;cursor:pointer}
 button.secondary{background:#30394d;color:white}
-.info{text-align:center;color:#c4c8d4;font-size:14px;line-height:1.6}
+.info{text-align:center;color:#c4c8d4;font-size:14px;line-height:1.7}
 .panel{background:#202637;border-radius:12px;padding:20px;margin:20px 0;text-align:center}
-input{width:100%;max-width:400px;padding:13px;border:0;border-radius:7px;margin:7px 0}
+input{width:100%;max-width:400px;padding:13px;border:0;border-radius:7px;margin:7px 0;font-size:15px}
+input[type="file"]{background:#fff;color:#222}
+.price-box{background:#151b29;border-radius:10px;padding:15px;margin:15px auto;max-width:400px;line-height:1.8}
+.price-box strong{color:#ffd54a}
 footer{text-align:center;color:#9299aa;padding:25px;font-size:13px}
 </style>
 </head>
 
 <body>
 <header>
-  <h1>1 MILLION PIXELS</h1>
-  <p>Buy a Pixel. Own a Piece of the Internet.</p>
-  <p>One million pixels. One dollar each.</p>
+  <h1>150PIXELS</h1>
+  <p>Own Your Space. 150 Pixels for $1.</p>
+  <p>Buy advertising space for your store on the internet.</p>
 </header>
 
 <main>
   <div class="stats">
     <div class="stat">Total pixels<strong>1,000,000</strong></div>
-    <div class="stat">Price per pixel<strong>26,000₫</strong></div>
+    <div class="stat">Price<strong>150 px = $1</strong></div>
     <div class="stat">Your selection<strong id="count">0</strong></div>
   </div>
 
@@ -52,14 +55,37 @@ footer{text-align:center;color:#9299aa;padding:25px;font-size:13px}
   </div>
 
   <p class="info">
-    Drag on the grid to select a rectangular area.<br>
-    Selected pixels: <b id="selected">0</b><br>
-    Estimated price: <b id="price">0₫</b>
+    Drag on the grid to select a rectangular advertising area.<br>
+    Selected pixels: <b id="selected">0</b>
   </p>
 
   <div class="panel">
+    <h2>Calculate Your Advertising Price</h2>
+    <p class="info">Enter the number of pixels you want to buy.</p>
+
+    <input
+      id="quantity"
+      type="number"
+      min="1"
+      max="1000000"
+      step="1"
+      placeholder="Enter number of pixels"
+    >
+
+    <div class="price-box">
+      <div>Price in USD: <strong id="priceUSD">$0.00</strong></div>
+      <div>Estimated price in VND: <strong id="priceVND">0₫</strong></div>
+      <p class="info">Rate used: 1 USD = 25,600 VND</p>
+    </div>
+
+    <p class="info" id="selectionMessage">
+      Select an area on the grid matching your requested pixel quantity.
+    </p>
+  </div>
+
+  <div class="panel">
     <h2>Advertise Your Store</h2>
-    <p>Select an area and upload your store logo.</p>
+    <p>Select your advertising area, enter your pixel quantity and upload your store logo.</p>
 
     <input id="name" placeholder="Your name">
     <br>
@@ -68,16 +94,18 @@ footer{text-align:center;color:#9299aa;padding:25px;font-size:13px}
     <input id="website" placeholder="Your website or Facebook URL">
     <br>
     <input id="logo" type="file" accept="image/png,image/jpeg,image/webp">
-    <p class="info">Upload your store logo (PNG, JPG or WEBP).</p>
+
+    <p class="info">Upload your store logo (PNG, JPG or WEBP, maximum 5MB).</p>
 
     <button id="reserve">Submit reservation request</button>
+
     <p class="info">
       Logo preview is temporary. Your advertisement is not published until approved.
     </p>
   </div>
 </main>
 
-<footer>© 2026 1 Million Pixels. All rights reserved.</footer>
+<footer>© 2026 150Pixels. All rights reserved.</footer>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -85,10 +113,14 @@ const ctx = canvas.getContext("2d");
 
 const countEl = document.getElementById("count");
 const selectedEl = document.getElementById("selected");
-const priceEl = document.getElementById("price");
+const quantityInput = document.getElementById("quantity");
+const priceUSDEl = document.getElementById("priceUSD");
+const priceVNDEl = document.getElementById("priceVND");
+const selectionMessage = document.getElementById("selectionMessage");
 
 const SIZE = 1000;
-const PRICE_PER_PIXEL = 26000;
+const PIXELS_PER_DOLLAR = 150;
+const USD_TO_VND = 25600;
 
 let scale = 0.5;
 let offsetX = 0;
@@ -98,6 +130,42 @@ let start = null;
 let end = null;
 let dragging = false;
 let logoImage = null;
+
+function formatVND(value) {
+  return Math.round(value).toLocaleString("vi-VN") + "₫";
+}
+
+function formatUSD(value) {
+  return "$" + value.toFixed(2);
+}
+
+function calculatePrice(pixelCount) {
+  const usd = pixelCount / PIXELS_PER_DOLLAR;
+  const vnd = usd * USD_TO_VND;
+
+  return { usd, vnd };
+}
+
+function updatePrice() {
+  const quantity = Number(quantityInput.value);
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > SIZE * SIZE
+  ) {
+    priceUSDEl.textContent = "$0.00";
+    priceVNDEl.textContent = "0₫";
+    return;
+  }
+
+  const price = calculatePrice(quantity);
+
+  priceUSDEl.textContent = formatUSD(price.usd);
+  priceVNDEl.textContent = formatVND(price.vnd);
+}
+
+quantityInput.addEventListener("input", updatePrice);
 
 function resize() {
   const rect = canvas.getBoundingClientRect();
@@ -199,13 +267,26 @@ function draw() {
 
 function updateSelection() {
   const area = getSelection();
+  const selectedPixels = area ? area.w * area.h : 0;
 
-  const n = area ? area.w * area.h : 0;
-  const amount = n * PRICE_PER_PIXEL;
+  countEl.textContent = selectedPixels.toLocaleString();
+  selectedEl.textContent = selectedPixels.toLocaleString();
 
-  countEl.textContent = n.toLocaleString();
-  selectedEl.textContent = n.toLocaleString();
-  priceEl.textContent = amount.toLocaleString("vi-VN") + "₫";
+  const requested = Number(quantityInput.value);
+
+  if (requested > 0 && Number.isInteger(requested)) {
+    if (selectedPixels === requested) {
+      selectionMessage.textContent = "Your selected area matches your requested pixel quantity.";
+    } else {
+      selectionMessage.textContent =
+        "You selected " + selectedPixels.toLocaleString() +
+        " pixels. You entered " + requested.toLocaleString() +
+        " pixels. Please make them match.";
+    }
+  } else {
+    selectionMessage.textContent =
+      "Enter your desired pixel quantity, then select the matching area on the grid.";
+  }
 }
 
 canvas.addEventListener("pointerdown", e => {
@@ -314,10 +395,25 @@ document.getElementById("logo").addEventListener("change", e => {
 
 document.getElementById("reserve").onclick = () => {
   const area = getSelection();
-  const pixelCount = area ? area.w * area.h : 0;
+  const selectedPixels = area ? area.w * area.h : 0;
+  const requestedPixels = Number(quantityInput.value);
 
-  if (pixelCount <= 0) {
-    alert("Please select an area first.");
+  if (
+    !Number.isInteger(requestedPixels) ||
+    requestedPixels < 1 ||
+    requestedPixels > SIZE * SIZE
+  ) {
+    alert("Please enter a valid pixel quantity between 1 and 1,000,000.");
+    return;
+  }
+
+  if (selectedPixels <= 0) {
+    alert("Please select an area on the grid first.");
+    return;
+  }
+
+  if (selectedPixels !== requestedPixels) {
+    alert("Your selected area must match the pixel quantity you entered.");
     return;
   }
 
@@ -340,7 +436,8 @@ document.getElementById("reserve").onclick = () => {
     return;
   }
 
-  const amount = pixelCount * PRICE_PER_PIXEL;
+  const price = calculatePrice(selectedPixels);
+  const amountVND = Math.round(price.vnd);
 
   const overlay = document.createElement("div");
   overlay.style.cssText = `
@@ -368,15 +465,21 @@ document.getElementById("reserve").onclick = () => {
   `;
 
   const title = document.createElement("h2");
-  title.textContent = "MoMo Payment";
+  title.textContent = "150Pixels - MoMo Payment";
 
   const details = document.createElement("p");
   details.textContent =
-    pixelCount.toLocaleString() + " pixels × 26,000₫";
+    selectedPixels.toLocaleString() + " pixels";
+
+  const usd = document.createElement("p");
+  usd.textContent = "Price: " + formatUSD(price.usd);
 
   const total = document.createElement("h2");
   total.style.color = "#c21870";
-  total.textContent = amount.toLocaleString("vi-VN") + "₫";
+  total.textContent = formatVND(amountVND);
+
+  const rate = document.createElement("p");
+  rate.textContent = "Estimated exchange rate: 1 USD = 25,600 VND";
 
   const qr = document.createElement("img");
   qr.src = "IMG_1794124745019_1794124772036.jpg";
@@ -386,7 +489,7 @@ document.getElementById("reserve").onclick = () => {
 
   const instruction = document.createElement("p");
   instruction.textContent =
-    "Scan this QR code and transfer the exact amount shown above. Your payment will be checked manually.";
+    "Scan this QR code and transfer the exact VND amount shown above. Your payment will be checked manually.";
 
   const order = document.createElement("p");
   order.textContent = "Name: " + name + " | Email: " + email;
@@ -405,7 +508,9 @@ document.getElementById("reserve").onclick = () => {
   box.append(
     title,
     details,
+    usd,
     total,
+    rate,
     qr,
     instruction,
     order,
@@ -428,6 +533,7 @@ offsetY = (canvas.clientHeight - SIZE * scale) / 2;
 
 draw();
 updateSelection();
+updatePrice();
 </script>
 </body>
-  </html>
+</html>
