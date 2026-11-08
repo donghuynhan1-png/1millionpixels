@@ -197,13 +197,90 @@ canvas.addEventListener("wheel",e=>{
 },{passive:false});
 
 document.getElementById("reserve").onclick=()=>{
-  const n=countEl.textContent;
-  if(n==="0"){alert("Please select some pixels first.");return;}
-  const name=document.getElementById("name").value.trim();
-  const email=document.getElementById("email").value.trim();
-  const website=document.getElementById("website").value.trim();
-  if(!name||!email){alert("Please enter your name and email.");return;}
-  alert("Demo only! Your selection is "+n+" pixels ($"+n.replace(/,/g,"")+"). No real reservation has been saved.");
+  const pixelCount = Number(countEl.textContent.replace(/,/g,""));
+
+  if(pixelCount <= 0){
+    alert("Please select some pixels first.");
+    return;
+  }
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const website = document.getElementById("website").value.trim();
+
+  if(!name || !email){
+    alert("Please enter your name and email.");
+    return;
+  }
+
+  const amount = pixelCount * 26000;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:rgba(0,0,0,.9);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    overflow:auto;
+  `;
+
+  const box = document.createElement("div");
+  box.style.cssText = `
+    background:white;
+    color:#222;
+    border-radius:16px;
+    padding:22px;
+    max-width:420px;
+    width:100%;
+    text-align:center;
+    font-family:Arial;
+  `;
+
+  const title = document.createElement("h2");
+  title.textContent = "MoMo Payment";
+
+  const details = document.createElement("p");
+  details.textContent =
+    pixelCount.toLocaleString() + " pixels × 26,000₫";
+
+  const total = document.createElement("h2");
+  total.style.color = "#c21870";
+  total.textContent = amount.toLocaleString("vi-VN") + "₫";
+
+  const qr = document.createElement("img");
+  qr.src = "IMG_1794124745019_1794124772036.jpg";
+  qr.alt = "MoMo VietQR";
+  qr.style.cssText =
+    "width:100%;max-width:280px;margin:12px auto;display:block;";
+
+  const instruction = document.createElement("p");
+  instruction.textContent =
+    "Scan this QR code and transfer the exact amount shown above. Your payment will be checked manually.";
+
+  const order = document.createElement("p");
+  order.textContent = "Name: " + name + " | Email: " + email;
+
+  const site = document.createElement("p");
+  site.textContent = "Website: " + (website || "Not provided");
+
+  const warning = document.createElement("p");
+  warning.textContent =
+    "Your pixels are not reserved until payment is verified.";
+
+  const close = document.createElement("button");
+  close.textContent = "Close";
+  close.style.cssText =
+    "padding:12px 25px;background:#ffd54a;border:0;border-radius:8px;font-weight:bold;";
+  close.onclick = () => overlay.remove();
+
+  box.append(title, details, total, qr, instruction, order, site, warning, close);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+};
 };
 
 window.addEventListener("resize",resize);
