@@ -1,539 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>150Pixels - Own Your Space</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BLOCK MINI</title>
 <style>
+:root{--bg:#101827;--panel:#1b2940;--accent:#63e6c5;--empty:#19263a}
 *{box-sizing:border-box}
-body{margin:0;background:#10131c;color:#fff;font-family:Arial,sans-serif}
-header{text-align:center;padding:35px 15px 20px}
-h1{font-size:clamp(34px,7vw,56px);margin:0;color:#ffd54a}
-header p{color:#c4c8d4;line-height:1.6}
-main{max-width:1000px;margin:auto;padding:15px}
-.stats{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin:20px 0}
-.stat{background:#202637;padding:14px 22px;border-radius:12px;text-align:center}
-.stat strong{display:block;font-size:22px;color:#ffd54a;margin-top:7px}
-.board{background:#fff;border:5px solid #30394d;border-radius:8px;overflow:hidden}
-canvas{display:block;width:100%;height:65vh;min-height:300px;touch-action:none;cursor:crosshair}
-.controls{text-align:center;margin:15px 0}
-button{border:0;border-radius:8px;padding:12px 18px;margin:4px;background:#ffd54a;color:#171717;font-weight:bold;cursor:pointer}
-button.secondary{background:#30394d;color:white}
-.info{text-align:center;color:#c4c8d4;font-size:14px;line-height:1.7}
-.panel{background:#202637;border-radius:12px;padding:20px;margin:20px 0;text-align:center}
-input{width:100%;max-width:400px;padding:13px;border:0;border-radius:7px;margin:7px 0;font-size:15px}
-input[type="file"]{background:#fff;color:#222}
-.price-box{background:#151b29;border-radius:10px;padding:15px;margin:15px auto;max-width:400px;line-height:1.8}
-.price-box strong{color:#ffd54a}
-footer{text-align:center;color:#9299aa;padding:25px;font-size:13px}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#263b59,#101827 60%);color:#fff;font-family:Arial,sans-serif;display:flex;justify-content:center;touch-action:pan-y}
+.app{width:min(100%,480px);padding:16px 13px 30px}
+header{text-align:center;margin:8px 0 18px}
+.logo{font-size:36px;font-weight:1000;letter-spacing:3px;color:var(--accent)}
+.tagline{font-size:11px;color:#a8b9ce;letter-spacing:2px;margin-top:5px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.stat{flex:1;background:var(--panel);border:1px solid #30425d;border-radius:12px;padding:9px 5px;text-align:center}
+.stat small{display:block;color:#a8b9ce;font-size:10px;margin-bottom:5px}
+.stat strong{font-size:21px}
+.icon{width:42px;height:42px;border:1px solid #3a4b65;background:var(--panel);color:white;border-radius:12px;font-size:18px}
+.hearts{background:var(--panel);border:1px solid #30425d;border-radius:12px;padding:11px;margin-bottom:13px}
+.heartline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hearticons{font-size:18px;letter-spacing:1px;line-height:1.5;overflow-wrap:anywhere}
+.heartinfo{font-size:11px;color:#a8b9ce;text-align:right;white-space:nowrap}
+.progress{height:5px;background:#34445d;border-radius:9px;margin-top:9px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.board-wrap{background:#30425b;padding:7px;border-radius:16px;box-shadow:0 12px 30px #0005}
+.board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;touch-action:none}
+.cell{aspect-ratio:1;background:var(--empty);border-radius:5px}
+.cell.filled{background:var(--accent);box-shadow:inset 0 -3px #32a98e}
+.cell.preview{background:#b3f8e9;box-shadow:inset 0 0 0 2px white}
+.cell.bad{background:#ef7777}
+.message{height:32px;text-align:center;color:var(--accent);font-size:13px;padding-top:11px}
+.tray-title{display:flex;justify-content:space-between;color:#a8b9ce;font-size:11px;margin:12px 4px 9px}
+.tray{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.slot{height:108px;background:var(--panel);border:2px solid #30425d;border-radius:14px;display:flex;align-items:center;justify-content:center;touch-action:none}
+.slot.used{opacity:.2}
+.shape{display:grid;gap:4px;pointer-events:none}
+.block{width:clamp(16px,4.5vw,21px);height:clamp(16px,4.5vw,21px);border-radius:5px;background:var(--accent);box-shadow:inset 0 -3px #32a98e}
+.block.empty{background:transparent;box-shadow:none}
+.drag-ghost{position:fixed;z-index:99;pointer-events:none;opacity:.92;transform:translate(-50%,-50%);filter:drop-shadow(0 8px 12px #0008)}
+.drag-ghost .block{width:clamp(20px,5.5vw,25px);height:clamp(20px,5.5vw,25px)}
+.buttons{display:flex;gap:9px;margin-top:15px}
+button{cursor:pointer}
+.action{flex:1;border:0;border-radius:12px;padding:13px 5px;font-weight:bold;background:#30425d;color:white}
+.primary{background:var(--accent);color:#10252a}
+.help{text-align:center;color:#8fa2bb;font-size:11px;line-height:1.5;margin-top:14px}
+.overlay{position:fixed;inset:0;background:#07101ddd;z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.dialog{width:min(100%,350px);background:#1b2940;border:1px solid #405777;border-radius:22px;padding:23px;text-align:center;box-shadow:0 20px 70px #0009}
+.dialog h2{font-size:26px;margin:5px 0 12px;color:var(--accent)}
+.dialog p{color:#b8c7d9;line-height:1.5;font-size:14px}
+.dialog .action{width:100%;margin-top:9px}
+.adnote{font-size:11px!important;color:#91a4bd!important}
+.hidden{display:none!important}
+@media(max-width:360px){.app{padding:12px 9px}.slot{height:94px}.logo{font-size:30px}}
 </style>
 </head>
-
 <body>
+<main class="app">
 <header>
-  <h1>150PIXELS</h1>
-  <p>Own Your Space. 150 Pixels for $1.</p>
-  <p>Buy advertising space for your store on the internet.</p>
+ <div class="logo">BLOCK MINI</div>
+ <div class="tagline">THINK • PLACE • CLEAR</div>
 </header>
 
-<main>
-  <div class="stats">
-    <div class="stat">Total pixels<strong>1,000,000</strong></div>
-    <div class="stat">Price<strong>150 px = $1</strong></div>
-    <div class="stat">Your selection<strong id="count">0</strong></div>
+<div class="top">
+ <button class="icon" id="soundBtn">🔊</button>
+ <div class="stat"><small>ĐIỂM</small><strong id="score">0</strong></div>
+ <div class="stat"><small>KỶ LỤC</small><strong id="best">0</strong></div>
+ <button class="icon" id="pauseBtn">Ⅱ</button>
+</div>
+
+<section class="hearts">
+ <div class="heartline">
+  <div>
+   <div style="font-size:11px;color:#a8b9ce;margin-bottom:5px">NĂNG LƯỢNG</div>
+   <div class="hearticons" id="heartIcons">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
   </div>
-
-  <div class="board">
-    <canvas id="canvas"></canvas>
+  <div class="heartinfo">
+   <strong id="heartCount" style="font-size:18px;color:white">10/10</strong>
+   <div id="heartTimer">Đầy tim</div>
   </div>
+ </div>
+ <div class="progress"><span id="heartProgress"></span></div>
+</section>
 
-  <div class="controls">
-    <button class="secondary" id="zoomOut">− Zoom out</button>
-    <button class="secondary" id="reset">Reset view</button>
-    <button class="secondary" id="zoomIn">+ Zoom in</button>
-  </div>
+<div class="board-wrap"><div class="board" id="board"></div></div>
+<div class="message" id="message">Kéo một khối vào bảng để bắt đầu!</div>
 
-  <p class="info">
-    Drag on the grid to select a rectangular advertising area.<br>
-    Selected pixels: <b id="selected">0</b>
-  </p>
+<div class="tray-title"><span>CHỌN KHỐI CỦA MÀY</span><span id="roundLabel">LƯỢT 1</span></div>
+<div class="tray" id="tray"></div>
 
-  <div class="panel">
-    <h2>Calculate Your Advertising Price</h2>
-    <p class="info">Enter the number of pixels you want to buy.</p>
-
-    <input
-      id="quantity"
-      type="number"
-      min="1"
-      max="1000000"
-      step="1"
-      placeholder="Enter number of pixels"
-    >
-
-    <div class="price-box">
-      <div>Price in USD: <strong id="priceUSD">$0.00</strong></div>
-      <div>Estimated price in VND: <strong id="priceVND">0₫</strong></div>
-      <p class="info">Rate used: 1 USD = 25,600 VND</p>
-    </div>
-
-    <p class="info" id="selectionMessage">
-      Select an area on the grid matching your requested pixel quantity.
-    </p>
-  </div>
-
-  <div class="panel">
-    <h2>Advertise Your Store</h2>
-    <p>Select your advertising area, enter your pixel quantity and upload your store logo.</p>
-
-    <input id="name" placeholder="Your name">
-    <br>
-    <input id="email" type="email" placeholder="Your email">
-    <br>
-    <input id="website" placeholder="Your website or Facebook URL">
-    <br>
-    <input id="logo" type="file" accept="image/png,image/jpeg,image/webp">
-
-    <p class="info">Upload your store logo (PNG, JPG or WEBP, maximum 5MB).</p>
-
-    <button id="reserve">Submit reservation request</button>
-
-    <p class="info">
-      Logo preview is temporary. Your advertisement is not published until approved.
-    </p>
-  </div>
+<div class="buttons">
+ <button class="action" id="restartBtn">↻ Chơi lại</button>
+ <button class="action primary" id="newBtn">Chơi mới</button>
+</div>
+<div class="help">Kéo khối vào bảng. Lấp đầy hàng ngang hoặc cột dọc để xóa.<br>Mỗi ván thua sẽ tiêu hao 1 tim.</div>
 </main>
 
-<footer>© 2026 150Pixels. All rights reserved.</footer>
+<div class="overlay" id="overlay">
+ <div class="dialog">
+  <h2 id="dialogTitle">TẠM DỪNG</h2>
+  <p id="dialogText">Game đang tạm dừng.</p>
+  <button class="action primary" id="continueBtn">Tiếp tục</button>
+  <button class="action" id="rewardBtn">❤️ Xem quảng cáo nhận 1 tim</button>
+  <button class="action" id="dialogRestart">Chơi lại</button>
+  <p class="adnote" id="adNote">Quảng cáo có thưởng sẽ được kết nối khi phát hành ứng dụng Android.</p>
+ </div>
+</div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+(()=>{
+"use strict";
 
-const countEl = document.getElementById("count");
-const selectedEl = document.getElementById("selected");
-const quantityInput = document.getElementById("quantity");
-const priceUSDEl = document.getElementById("priceUSD");
-const priceVNDEl = document.getElementById("priceVND");
-const selectionMessage = document.getElementById("selectionMessage");
+const N=8,MAX_HEARTS=10,REGEN_MS=5*60*1000;
+const SAVE_KEY="blockMiniSaveV2";
+const $=id=>document.getElementById(id);
 
-const SIZE = 1000;
-const PIXELS_PER_DOLLAR = 150;
-const USD_TO_VND = 25600;
+const SHAPES=[
+ [[0,0]],[[0,0],[0,1]],[[0,0],[1,0]],
+ [[0,0],[0,1],[0,2]],[[0,0],[1,0],[2,0]],
+ [[0,0],[0,1],[0,2],[0,3]],[[0,0],[1,0],[2,0],[3,0]],
+ [[0,0],[0,1],[1,0],[1,1]],[[0,0],[0,1],[1,1]],
+ [[0,0],[1,0],[2,0],[2,1]],[[0,1],[1,0],[1,1],[1,2]],
+ [[0,0],[1,0],[1,1],[2,1]],
+ [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]],
+ [[0,0],[1,0],[2,0],[2,1],[2,2]],
+ [[0,0],[0,1],[1,1],[1,2]],[[0,1],[1,0],[1,1],[2,1]],
+ [[0,0],[0,1],[0,2],[1,0],[2,0]],
+ [[0,0],[1,0],[2,0],[2,1],[2,2]]
+];
 
-let scale = 0.5;
-let offsetX = 0;
-let offsetY = 0;
+let grid,score,best,round,slots,paused,ended,sound=true;
+let drag=null,audioCtx=null;
+let hearts=MAX_HEARTS,nextHeartAt=0;
+let lastTick=Date.now();
 
-let start = null;
-let end = null;
-let dragging = false;
-let logoImage = null;
+function freshGrid(){return Array.from({length:N},()=>Array(N).fill(0))}
+function normalize(shape){
+ const mr=Math.min(...shape.map(p=>p[0])),mc=Math.min(...shape.map(p=>p[1]));
+ return shape.map(([r,c])=>[r-mr,c-mc]);
+}
+function randomShape(){return normalize(SHAPES[Math.floor(Math.random()*SHAPES.length)])}
 
-function formatVND(value) {
-  return Math.round(value).toLocaleString("vi-VN") + "₫";
+function save(){
+ const data={
+  grid,score,best,round,slots,hearts,nextHeartAt,
+  paused:false,ended
+ };
+ try{localStorage.setItem(SAVE_KEY,JSON.stringify(data))}catch(e){}
+}
+function load(){
+ try{
+  const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");
+  if(!d)return false;
+  if(!Array.isArray(d.grid)||d.grid.length!==N)return false;
+  grid=d.grid;score=Number(d.score)||0;best=Number(d.best)||0;
+  round=Number(d.round)||1;slots=Array.isArray(d.slots)?d.slots:[];
+  hearts=Math.max(0,Math.min(MAX_HEARTS,Number(d.hearts)));
+  nextHeartAt=Number(d.nextHeartAt)||0;
+  ended=!!d.ended;paused=false;
+  if(slots.length!==3)slots=[randomShape(),randomShape(),randomShape()];
+  return true;
+ }catch(e){return false}
 }
 
-function formatUSD(value) {
-  return "$" + value.toFixed(2);
+function buildBoard(){
+ $("board").innerHTML="";
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+  const el=document.createElement("div");
+  el.className="cell";el.dataset.r=r;el.dataset.c=c;
+  $("board").appendChild(el);
+ }
 }
-
-function calculatePrice(pixelCount) {
-  const usd = pixelCount / PIXELS_PER_DOLLAR;
-  const vnd = usd * USD_TO_VND;
-
-  return { usd, vnd };
+function drawBoard(){
+ [...$("board").children].forEach((el,i)=>{
+  const r=Math.floor(i/N),c=i%N;
+  el.className="cell"+(grid[r][c]?" filled":"");
+ });
 }
-
-function updatePrice() {
-  const quantity = Number(quantityInput.value);
-
-  if (
-    !Number.isInteger(quantity) ||
-    quantity < 1 ||
-    quantity > SIZE * SIZE
-  ) {
-    priceUSDEl.textContent = "$0.00";
-    priceVNDEl.textContent = "0₫";
-    return;
+function drawTray(){
+ $("tray").innerHTML="";
+ slots.forEach((shape,index)=>{
+  const slot=document.createElement("div");
+  slot.className="slot"+(!shape?" used":"");
+  if(shape){
+   const rows=Math.max(...shape.map(p=>p[0]))+1;
+   const cols=Math.max(...shape.map(p=>p[1]))+1;
+   const visual=document.createElement("div");visual.className="shape";
+   visual.style.gridTemplateColumns=`repeat(${cols},20px)`;
+   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const b=document.createElement("div");
+    b.className="block"+(shape.some(p=>p[0]===r&&p[1]===c)?"":" empty");
+    visual.appendChild(b);
+   }
+   slot.appendChild(visual);
+   slot.addEventListener("pointerdown",e=>startDrag(e,index));
   }
-
-  const price = calculatePrice(quantity);
-
-  priceUSDEl.textContent = formatUSD(price.usd);
-  priceVNDEl.textContent = formatVND(price.vnd);
+  $("tray").appendChild(slot);
+ });
+ $("roundLabel").textContent="LƯỢT "+round;
 }
-
-quantityInput.addEventListener("input", updatePrice);
-
-function resize() {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  draw();
+function updateStats(){
+ $("score").textContent=score;$("best").textContent=best;
 }
-
-function point(e) {
-  const r = canvas.getBoundingClientRect();
-
-  return {
-    x: (e.clientX - r.left - offsetX) / scale,
-    y: (e.clientY - r.top - offsetY) / scale
-  };
+function updateHearts(){
+ $("heartCount").textContent=hearts+"/10";
+ $("heartIcons").textContent="❤️".repeat(hearts)+"🖤".repeat(MAX_HEARTS-hearts);
+ if(hearts>=MAX_HEARTS){
+  nextHeartAt=0;$("heartTimer").textContent="Đầy tim";
+  $("heartProgress").style.width="100%";
+ }else{
+  const remaining=Math.max(0,nextHeartAt-Date.now());
+  const secs=Math.ceil(remaining/1000);
+  $("heartTimer").textContent="Hồi sau "+Math.floor(secs/60)+":"+String(secs%60).padStart(2,"0");
+  const progress=100*(1-remaining/REGEN_MS);
+  $("heartProgress").style.width=Math.max(0,Math.min(100,progress))+"%";
+ }
 }
-
-function getSelection() {
-  if (!start || !end) return null;
-
-  const x1 = Math.max(0, Math.min(SIZE, Math.floor(Math.min(start.x, end.x))));
-  const y1 = Math.max(0, Math.min(SIZE, Math.floor(Math.min(start.y, end.y))));
-  const x2 = Math.max(0, Math.min(SIZE, Math.ceil(Math.max(start.x, end.x))));
-  const y2 = Math.max(0, Math.min(SIZE, Math.ceil(Math.max(start.y, end.y))));
-
-  return {
-    x: x1,
-    y: y1,
-    w: Math.max(0, x2 - x1),
-    h: Math.max(0, y2 - y1)
-  };
-}
-
-function draw() {
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = "#f4f4f4";
-  ctx.fillRect(0, 0, w, h);
-
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, SIZE, SIZE);
-
-  const area = getSelection();
-
-  if (logoImage && area && area.w > 0 && area.h > 0) {
-    const ratio = Math.min(
-      area.w / logoImage.width,
-      area.h / logoImage.height
-    );
-
-    const drawW = logoImage.width * ratio;
-    const drawH = logoImage.height * ratio;
-
-    ctx.drawImage(
-      logoImage,
-      area.x + (area.w - drawW) / 2,
-      area.y + (area.h - drawH) / 2,
-      drawW,
-      drawH
-    );
+function tickHearts(){
+ const now=Date.now();
+ if(hearts<MAX_HEARTS){
+  if(!nextHeartAt)nextHeartAt=now+REGEN_MS;
+  while(hearts<MAX_HEARTS&&now>=nextHeartAt){
+   hearts++;
+   nextHeartAt=hearts<MAX_HEARTS?nextHeartAt+REGEN_MS:0;
   }
-
-  if (scale > 5) {
-    ctx.strokeStyle = "#ddd";
-    ctx.lineWidth = 1 / scale;
-    ctx.beginPath();
-
-    for (let i = 0; i <= SIZE; i++) {
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i, SIZE);
-      ctx.moveTo(0, i);
-      ctx.lineTo(SIZE, i);
-    }
-
-    ctx.stroke();
-  }
-
-  if (area && area.w > 0 && area.h > 0) {
-    ctx.fillStyle = "rgba(255,190,0,.18)";
-    ctx.fillRect(area.x, area.y, area.w, area.h);
-
-    ctx.strokeStyle = "#e49b00";
-    ctx.lineWidth = 2 / scale;
-    ctx.strokeRect(area.x, area.y, area.w, area.h);
-  }
-
-  ctx.restore();
+ }
+ updateHearts();save();
 }
+function setMessage(s){$("message").textContent=s}
 
-function updateSelection() {
-  const area = getSelection();
-  const selectedPixels = area ? area.w * area.h : 0;
-
-  countEl.textContent = selectedPixels.toLocaleString();
-  selectedEl.textContent = selectedPixels.toLocaleString();
-
-  const requested = Number(quantityInput.value);
-
-  if (requested > 0 && Number.isInteger(requested)) {
-    if (selectedPixels === requested) {
-      selectionMessage.textContent = "Your selected area matches your requested pixel quantity.";
-    } else {
-      selectionMessage.textContent =
-        "You selected " + selectedPixels.toLocaleString() +
-        " pixels. You entered " + requested.toLocaleString() +
-        " pixels. Please make them match.";
-    }
-  } else {
-    selectionMessage.textContent =
-      "Enter your desired pixel quantity, then select the matching area on the grid.";
-  }
+function canPlace(shape,r,c){
+ return shape.every(([dr,dc])=>{
+  const y=r+dr,x=c+dc;
+  return y>=0&&y<N&&x>=0&&x<N&&!grid[y][x];
+ });
 }
-
-canvas.addEventListener("pointerdown", e => {
-  e.preventDefault();
-
-  dragging = true;
-  canvas.setPointerCapture(e.pointerId);
-
-  start = point(e);
-  end = { ...start };
-
-  draw();
-  updateSelection();
+function getBoardCell(x,y){
+ const el=document.elementFromPoint(x,y);
+ const cell=el?.closest(".cell");
+ if(!cell||!$("board").contains(cell))return null;
+ return {r:Number(cell.dataset.r),c:Number(cell.dataset.c)};
+}
+function clearPreview(){
+ [...$("board").children].forEach(el=>el.classList.remove("preview","bad"));
+}
+function previewAt(x,y){
+ clearPreview();
+ if(!drag)return;
+ const target=getBoardCell(x,y);if(!target)return;
+ const {r,c}=target,valid=canPlace(drag.shape,r,c);
+ drag.shape.forEach(([dr,dc])=>{
+  const rr=r+dr,cc=c+dc;
+  if(rr>=0&&rr<N&&cc>=0&&cc<N){
+   $("board").children[rr*N+cc].classList.add(valid?"preview":"bad");
+  }
+ });
+}
+function makeGhost(shape){
+ const ghost=document.createElement("div");ghost.className="drag-ghost";
+ const rows=Math.max(...shape.map(p=>p[0]))+1;
+ const cols=Math.max(...shape.map(p=>p[1]))+1;
+ const visual=document.createElement("div");visual.className="shape";
+ visual.style.gridTemplateColumns=`repeat(${cols},24px)`;
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+  const b=document.createElement("div");
+  b.className="block"+(shape.some(p=>p[0]===r&&p[1]===c)?"":" empty");
+  visual.appendChild(b);
+ }
+ ghost.appendChild(visual);document.body.appendChild(ghost);return ghost;
+}
+function startDrag(e,index){
+ if(paused||ended||hearts<=0||!slots[index])return;
+ e.preventDefault();
+ drag={index,shape:slots[index],pointerId:e.pointerId,ghost:makeGhost(slots[index])};
+ moveGhost(e.clientX,e.clientY);
+}
+function moveGhost(x,y){
+ if(!drag)return;
+ drag.ghost.style.left=x+"px";drag.ghost.style.top=(y-45)+"px";
+ previewAt(x,y);
+}
+window.addEventListener("pointermove",e=>{
+ if(!drag||e.pointerId!==drag.pointerId)return;
+ e.preventDefault();moveGhost(e.clientX,e.clientY);
+},{passive:false});
+window.addEventListener("pointerup",e=>{
+ if(!drag||e.pointerId!==drag.pointerId)return;
+ const target=getBoardCell(e.clientX,e.clientY),active=drag;
+ drag=null;active.ghost.remove();clearPreview();
+ if(target&&canPlace(active.shape,target.r,target.c))commit(active.index,target.r,target.c);
+ else setMessage("Chưa đặt được khối. Thử vị trí khác nhé!");
+});
+window.addEventListener("pointercancel",()=>{
+ if(drag){drag.ghost.remove();drag=null;clearPreview()}
 });
 
-canvas.addEventListener("pointermove", e => {
-  if (!dragging) return;
-
-  e.preventDefault();
-  end = point(e);
-
-  draw();
-  updateSelection();
-});
-
-canvas.addEventListener("pointerup", () => {
-  dragging = false;
-});
-
-canvas.addEventListener("pointercancel", () => {
-  dragging = false;
-});
-
-function zoom(factor) {
-  const cx = canvas.clientWidth / 2;
-  const cy = canvas.clientHeight / 2;
-
-  const wx = (cx - offsetX) / scale;
-  const wy = (cy - offsetY) / scale;
-
-  scale = Math.max(0.1, Math.min(30, scale * factor));
-
-  offsetX = cx - wx * scale;
-  offsetY = cy - wy * scale;
-
-  draw();
+function commit(index,r,c){
+ const shape=slots[index];if(!shape||!canPlace(shape,r,c))return;
+ shape.forEach(([dr,dc])=>grid[r+dr][c+dc]=1);
+ slots[index]=null;score+=shape.length;
+ const cleared=clearLines();
+ if(cleared){
+  score+=cleared*10+(cleared>1?(cleared-1)*15:0);
+  setMessage(cleared>1?"COMBO! XÓA "+cleared+" HÀNG/CỘT!":"Tuyệt vời! Đã xóa hàng/cột!");
+  playSound(660);
+ }else{setMessage("Đặt khối thành công!");playSound(420)}
+ if(score>best)best=score;
+ drawBoard();updateStats();drawTray();
+ if(slots.every(x=>x===null)){
+  round++;slots=[randomShape(),randomShape(),randomShape()];drawTray();
+ }
+ save();
+ if(!hasAnyMove())finishGame();
+}
+function clearLines(){
+ const rows=[],cols=[];
+ for(let r=0;r<N;r++)if(grid[r].every(Boolean))rows.push(r);
+ for(let c=0;c<N;c++)if(grid.every(row=>row[c]))cols.push(c);
+ rows.forEach(r=>grid[r].fill(0));
+ cols.forEach(c=>{for(let r=0;r<N;r++)grid[r][c]=0});
+ return rows.length+cols.length;
+}
+function hasAnyMove(){
+ return slots.some(shape=>shape&&
+  Array.from({length:N},(_,r)=>r).some(r=>
+   Array.from({length:N},(_,c)=>c).some(c=>canPlace(shape,r,c))
+  )
+ );
+}
+function playSound(freq){
+ if(!sound)return;
+ try{
+  audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended")audioCtx.resume();
+  const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+  osc.frequency.value=freq;osc.type="sine";
+  gain.gain.setValueAtTime(.07,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.12);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start();osc.stop(audioCtx.currentTime+.12);
+ }catch(e){}
 }
 
-document.getElementById("zoomIn").onclick = () => zoom(1.5);
-document.getElementById("zoomOut").onclick = () => zoom(0.67);
+function finishGame(){
+ ended=true;
+ hearts=Math.max(0,hearts-1);
+ if(hearts<MAX_HEARTS&&!nextHeartAt)nextHeartAt=Date.now()+REGEN_MS;
+ save();updateHearts();
+ $("dialogTitle").textContent="HẾT LƯỢT!";
+ $("dialogText").textContent="Điểm: "+score+" • Kỷ lục: "+best+
+  ". Mày đã mất 1 tim.";
+ $("continueBtn").classList.add("hidden");
+ $("rewardBtn").classList.remove("hidden");
+ $("dialogRestart").textContent=hearts>0?"Chơi ván mới":"Đóng";
+ $("adNote").textContent="Xem quảng cáo thành công để nhận lại 1 tim.";
+ $("overlay").classList.add("show");
+ if(hearts===0){
+  $("dialogText").textContent+=" Hết tim rồi! Chờ hồi tim hoặc xem quảng cáo.";
+ }
+}
+function pauseGame(){
+ if(ended)return;
+ paused=true;
+ $("dialogTitle").textContent="TẠM DỪNG";
+ $("dialogText").textContent="Game đang tạm dừng.";
+ $("continueBtn").classList.remove("hidden");
+ $("rewardBtn").classList.add("hidden");
+ $("dialogRestart").textContent="Chơi lại";
+ $("adNote").textContent="";
+ $("overlay").classList.add("show");
+}
+function continueGame(){
+ paused=false;$("overlay").classList.remove("show");save();
+}
+function newGame(){
+ if(hearts<=0){
+  $("dialogTitle").textContent="HẾT TIM ❤️";
+  $("dialogText").textContent="Mày cần chờ hồi 1 tim hoặc xem quảng cáo để nhận 1 tim.";
+  $("continueBtn").classList.add("hidden");
+  $("rewardBtn").classList.remove("hidden");
+  $("dialogRestart").textContent="Đóng";
+  $("adNote").textContent="Mỗi 5 phút hồi 1 tim.";
+  $("overlay").classList.add("show");return;
+ }
+ grid=freshGrid();score=0;round=1;paused=false;ended=false;
+ slots=[randomShape(),randomShape(),randomShape()];
+ $("overlay").classList.remove("show");
+ $("continueBtn").classList.remove("hidden");
+ setMessage("Kéo một khối vào bảng để bắt đầu!");
+ drawBoard();drawTray();updateStats();save();
+}
 
-document.getElementById("reset").onclick = () => {
-  scale = Math.min(canvas.clientWidth, canvas.clientHeight) / SIZE;
-
-  offsetX = (canvas.clientWidth - SIZE * scale) / 2;
-  offsetY = (canvas.clientHeight - SIZE * scale) / 2;
-
-  draw();
+/*
+ * CẦU NỐI QUẢNG CÁO ANDROID:
+ * Ứng dụng Android cần tích hợp SDK quảng cáo có thưởng.
+ * Sau khi SDK xác nhận người chơi xem quảng cáo hợp lệ,
+ * ứng dụng gọi window.BlockMiniRewardGranted().
+ * Không tự gọi hàm này từ nút HTML.
+ */
+let rewardPending=false;
+$("rewardBtn").onclick=async()=>{
+ if(hearts>=MAX_HEARTS){
+  $("adNote").textContent="Tim của mày đã đầy rồi!";
+  return;
+ }
+ if(rewardPending)return;
+ rewardPending=true;
+ $("rewardBtn").disabled=true;
+ $("adNote").textContent="Đang kiểm tra quảng cáo...";
+ try{
+  if(window.BlockMiniAds&&typeof window.BlockMiniAds.showRewardedAd==="function"){
+   await window.BlockMiniAds.showRewardedAd();
+   // Chỉ SDK/ứng dụng gọi BlockMiniRewardGranted sau khi xác nhận thưởng.
+  }else{
+   $("adNote").textContent="Quảng cáo chưa được kết nối. Hãy tích hợp SDK Android trước khi phát hành.";
+  }
+ }catch(e){
+  $("adNote").textContent="Chưa có quảng cáo khả dụng. Thử lại sau.";
+ }
+ rewardPending=false;$("rewardBtn").disabled=false;
+};
+window.BlockMiniRewardGranted=function(){
+ if(hearts<MAX_HEARTS){
+  hearts++;
+  if(hearts<MAX_HEARTS&&!nextHeartAt)nextHeartAt=Date.now()+REGEN_MS;
+  if(hearts>=MAX_HEARTS)nextHeartAt=0;
+  save();updateHearts();
+  $("adNote").textContent="Đã nhận 1 tim! ❤️";
+  if(ended&&hearts>0){
+   $("dialogRestart").textContent="Chơi ván mới";
+   $("dialogRestart").onclick=()=>{newGame();$("dialogRestart").onclick=newGame};
+  }
+ }
 };
 
-canvas.addEventListener("wheel", e => {
-  e.preventDefault();
-  zoom(e.deltaY < 0 ? 1.15 : 0.87);
-}, { passive: false });
-
-document.getElementById("logo").addEventListener("change", e => {
-  const file = e.target.files[0];
-
-  if (!file) {
-    logoImage = null;
-    draw();
-    return;
-  }
-
-  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-    alert("Please upload a PNG, JPG or WEBP image.");
-    e.target.value = "";
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    alert("Please choose an image smaller than 5MB.");
-    e.target.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const img = new Image();
-
-    img.onload = () => {
-      logoImage = img;
-      draw();
-    };
-
-    img.onerror = () => {
-      alert("Could not load this image.");
-    };
-
-    img.src = reader.result;
-  };
-
-  reader.readAsDataURL(file);
-});
-
-document.getElementById("reserve").onclick = () => {
-  const area = getSelection();
-  const selectedPixels = area ? area.w * area.h : 0;
-  const requestedPixels = Number(quantityInput.value);
-
-  if (
-    !Number.isInteger(requestedPixels) ||
-    requestedPixels < 1 ||
-    requestedPixels > SIZE * SIZE
-  ) {
-    alert("Please enter a valid pixel quantity between 1 and 1,000,000.");
-    return;
-  }
-
-  if (selectedPixels <= 0) {
-    alert("Please select an area on the grid first.");
-    return;
-  }
-
-  if (selectedPixels !== requestedPixels) {
-    alert("Your selected area must match the pixel quantity you entered.");
-    return;
-  }
-
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const website = document.getElementById("website").value.trim();
-
-  if (!name || !email) {
-    alert("Please enter your name and email.");
-    return;
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert("Please enter a valid email address.");
-    return;
-  }
-
-  if (!logoImage) {
-    alert("Please upload your store logo first.");
-    return;
-  }
-
-  const price = calculatePrice(selectedPixels);
-  const amountVND = Math.round(price.vnd);
-
-  const overlay = document.createElement("div");
-  overlay.style.cssText = `
-    position:fixed;
-    inset:0;
-    z-index:9999;
-    background:rgba(0,0,0,.9);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    overflow:auto;
-  `;
-
-  const box = document.createElement("div");
-  box.style.cssText = `
-    background:white;
-    color:#222;
-    border-radius:16px;
-    padding:22px;
-    max-width:420px;
-    width:100%;
-    text-align:center;
-    font-family:Arial;
-  `;
-
-  const title = document.createElement("h2");
-  title.textContent = "150Pixels - MoMo Payment";
-
-  const details = document.createElement("p");
-  details.textContent =
-    selectedPixels.toLocaleString() + " pixels";
-
-  const usd = document.createElement("p");
-  usd.textContent = "Price: " + formatUSD(price.usd);
-
-  const total = document.createElement("h2");
-  total.style.color = "#c21870";
-  total.textContent = formatVND(amountVND);
-
-  const rate = document.createElement("p");
-  rate.textContent = "Estimated exchange rate: 1 USD = 25,600 VND";
-
-  const qr = document.createElement("img");
-  qr.src = "IMG_1794124745019_1794124772036.jpg";
-  qr.alt = "MoMo VietQR";
-  qr.style.cssText =
-    "width:100%;max-width:280px;margin:12px auto;display:block;";
-
-  const instruction = document.createElement("p");
-  instruction.textContent =
-    "Scan this QR code and transfer the exact VND amount shown above. Your payment will be checked manually.";
-
-  const order = document.createElement("p");
-  order.textContent = "Name: " + name + " | Email: " + email;
-
-  const site = document.createElement("p");
-  site.textContent = "Website: " + (website || "Not provided");
-
-  const warning = document.createElement("p");
-  warning.textContent =
-    "Your pixels are not reserved until payment is verified.";
-
-  const close = document.createElement("button");
-  close.textContent = "Close";
-  close.onclick = () => overlay.remove();
-
-  box.append(
-    title,
-    details,
-    usd,
-    total,
-    rate,
-    qr,
-    instruction,
-    order,
-    site,
-    warning,
-    close
-  );
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
+$("soundBtn").onclick=()=>{
+ sound=!sound;$("soundBtn").textContent=sound?"🔊":"🔇";
+ if(sound)playSound(500);
+};
+$("pauseBtn").onclick=pauseGame;
+$("continueBtn").onclick=continueGame;
+$("restartBtn").onclick=()=>{
+ if(confirm("Chơi lại ván này?"))newGame();
+};
+$("newBtn").onclick=newGame;
+$("dialogRestart").onclick=()=>{
+ if(hearts>0)newGame();
+ else $("overlay").classList.remove("show");
 };
 
-window.addEventListener("resize", resize);
-
-resize();
-
-scale = Math.min(canvas.clientWidth, canvas.clientHeight) / SIZE;
-offsetX = (canvas.clientWidth - SIZE * scale) / 2;
-offsetY = (canvas.clientHeight - SIZE * scale) / 2;
-
-draw();
-updateSelection();
-updatePrice();
+buildBoard();
+if(!load()){
+ grid=freshGrid();score=0;round=1;best=0;
+ slots=[randomShape(),randomShape(),randomShape()];
+ hearts=MAX_HEARTS;nextHeartAt=0;ended=false;
+}
+tickHearts();drawBoard();drawTray();updateStats();updateHearts();
+if(ended){
+ $("dialogTitle").textContent="HẾT LƯỢT!";
+ $("dialogText").textContent="Điểm: "+score+". Mày có thể chơi tiếp khi còn tim.";
+ $("continueBtn").classList.add("hidden");
+ $("rewardBtn").classList.remove("hidden");
+ $("overlay").classList.add("show");
+}
+setInterval(tickHearts,1000);
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="visible"){tickHearts();updateHearts()}
+});
+})();
 </script>
 </body>
 </html>
